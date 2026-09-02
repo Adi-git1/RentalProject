@@ -2,7 +2,21 @@
 
 Party-equipment rental site. Next.js 16 (App Router) · TypeScript · Tailwind v4 · Supabase · Stripe · Resend · Vercel.
 
-## Status: build green (`npm run build` + `npm run lint` pass). Feature-complete pending the manual setup below.
+## Status: build green + database live + end-to-end verified.
+
+`npm run build` ✅ · `npm run lint` ✅ · `npm run db:migrate` ✅ · `npm run seed` ✅ (admin + 16 items).
+
+**End-to-end test run against the live Supabase DB + Stripe test mode (2026-09-02):**
+- Browse & item pages render seeded inventory ✅
+- Delivery address outside 30 mi rejected at checkout (Baltimore, ~53 mi) ✅
+- Checkout → pending booking with correct pricing: 4 tables + 1 bounce house, 3 days = $579 + 6% VA tax $34.74 = **$613.74**, deposit **$230** ✅
+- Payment (test card) → webhook → booking **confirmed** ✅
+- Security deposit placed as a real **$230 manual-capture authorization hold** (`requires_capture`) ✅
+- Availability decremented 4 → 3 for the booked dates; other dates unaffected ✅
+- Deposit hold **released** on return (PI canceled, never captured) ✅
+- Admin dashboard + inventory load; non-admin gets 307-redirected away from `/admin` ✅
+- `/api/cron/reminders` responds and is `CRON_SECRET`-gated ✅
+- ⚠️ Confirmation email send returns **401 "API key is invalid"** — the provided `RESEND_API_KEY` is rejected by Resend. Booking still confirms (email failure is caught, non-fatal). Needs a valid key.
 
 ## Phases
 - ✅ **Phase 0 — Scaffold & infrastructure**: Next.js app, deps, env, Supabase clients (browser/server/admin), proxy auth guard, DB schema + RLS + storage buckets + availability SQL, migration runner (`npm run db:migrate`), seed script (`npm run seed`), pricing engine, availability calc, geo distance check, cart context, teal design system.
@@ -16,19 +30,22 @@ Party-equipment rental site. Next.js 16 (App Router) · TypeScript · Tailwind v
 - ✅ **Phase 8 — Polish**: 404 / error / loading states, robots + sitemap, `vercel.json` cron, README, MANUAL_SETUP.
 
 ## What the owner MUST do manually — see `MANUAL_SETUP.md`
-1. **Reset the Supabase DB password** — the one provided is rejected (`28P01`). Then run `npm run db:migrate` and `npm run seed`. Project region: `us-east-1`. *(Blocks the whole site until done — no tables exist yet.)*
-2. **`RESEND_API_KEY` + `EMAIL_FROM`** — email is console-stubbed until set.
-3. **`STRIPE_WEBHOOK_SECRET`** — run `stripe listen ...` locally / add a webhook endpoint in production, else bookings stay "pending" after payment.
-4. **Supabase Auth redirect URLs** — add `/auth/callback` for localhost + prod.
-5. **Change the seeded admin password** (`AnyTimeRental!2026`) after first login.
-6. **Deploy to Vercel** — add all env vars; run migrations/seed against prod.
+1. ✅ ~~Supabase DB password~~ — fixed; migrations + seed have run against the live DB.
+2. **`RESEND_API_KEY`** — the current key returns `401 API key is invalid`. Create a fresh key at resend.com/api-keys, put it in `.env.local` / Vercel, and set `EMAIL_FROM` to a verified sender. Until then no emails send (bookings still work).
+3. **`STRIPE_WEBHOOK_SECRET`** — for local dev run `stripe listen --forward-to localhost:3000/api/stripe/webhook` and paste the `whsec_`; in production add a webhook endpoint. Without it, paid bookings stay "pending".
+4. **Supabase Auth redirect URLs** — add `http://localhost:3000/auth/callback` and the prod `/auth/callback`.
+5. **Change the seeded admin password** (`AnyTimeRental!2026`) after first login to `mohinisomesh2@gmail.com`.
+6. **Deploy to Vercel** — add all env vars; point `SUPABASE_DB_URL` at prod and run `npm run db:migrate` + `npm run seed`.
 7. Swap Stripe test keys for live keys when going live.
+8. Replace placeholder item photos (picsum.photos) with real photos in `/admin/inventory`.
 
 ## Not done / deliberately out of scope
 - Google login (email + magic link + password only; Google can be added in Supabase with no code change).
 - SMS reminders (email only).
 - `git push` to GitHub is currently blocked in this environment — commits are local; push `main` manually or authorize pushes.
 
-## Verified
-- `npm run build` ✅  · `npm run lint` ✅
-- Not yet run against a live database (blocked on item 1). Pricing/availability/geo logic is pure and unit-testable.
+## Not yet exercised in the E2E run (lower risk, code paths are simple)
+- Stripe's own hosted Checkout page (Stripe's UI, not our code) — the test simulated the resulting paid PaymentIntent + webhook event directly.
+- `stripe listen` locally (no Stripe CLI in the build environment) — the webhook handler itself is verified with a signed event.
+- Reminder emails actually arriving (blocked by the invalid Resend key); the cron endpoint + query logic run fine.
+- PDF receipt/agreement rendering was built with pdf-lib but not opened in this run.

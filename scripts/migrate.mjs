@@ -11,14 +11,20 @@ config({ path: ".env.local" });
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const migrationsDir = join(__dirname, "..", "supabase", "migrations");
 
-const connectionString = process.env.SUPABASE_DB_URL;
-if (!connectionString) {
+const dbUrl = process.env.SUPABASE_DB_URL;
+if (!dbUrl) {
   console.error("SUPABASE_DB_URL is not set in .env.local");
   process.exit(1);
 }
 
+// Parse ourselves so percent-encoded passwords (e.g. %40) are decoded reliably.
+const parsed = new URL(dbUrl);
 const client = new pg.Client({
-  connectionString,
+  host: parsed.hostname,
+  port: Number(parsed.port) || 5432,
+  user: decodeURIComponent(parsed.username),
+  password: decodeURIComponent(parsed.password),
+  database: parsed.pathname.replace(/^\//, "") || "postgres",
   ssl: { rejectUnauthorized: false },
 });
 
