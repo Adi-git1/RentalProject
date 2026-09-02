@@ -1,7 +1,21 @@
 /** Date helpers. All "ISO" values are calendar dates: YYYY-MM-DD, no timezone. */
 
 export function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  return toISODateLocal(new Date());
+}
+
+/** Format a Date's local calendar day as YYYY-MM-DD (no timezone shift). */
+export function toISODateLocal(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/** Parse YYYY-MM-DD into a local Date at midnight. */
+export function fromISODateLocal(iso: string): Date {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
 export function isISODate(v: unknown): v is string {

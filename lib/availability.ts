@@ -23,6 +23,7 @@ export async function getAvailability(
   itemIds: string[],
   startISO: string,
   endISO: string,
+  options: { excludeBookingId?: string } = {},
 ): Promise<Map<string, Availability>> {
   const admin = createAdminClient();
   const result = new Map<string, Availability>();
@@ -33,7 +34,7 @@ export async function getAvailability(
       admin.from("items").select("id, quantity").in("id", itemIds),
       admin
         .from("booking_items")
-        .select("item_id, qty, bookings!inner(status, start_date, end_date, created_at)")
+        .select("item_id, qty, bookings!inner(id, status, start_date, end_date, created_at)")
         .in("item_id", itemIds)
         .lte("bookings.start_date", endISO)
         .gte("bookings.end_date", startISO),
@@ -50,11 +51,14 @@ export async function getAvailability(
   type Joined = {
     item_id: string;
     qty: number;
-    bookings: { status: string; created_at: string } | { status: string; created_at: string }[];
+    bookings:
+      | { id: string; status: string; created_at: string }
+      | { id: string; status: string; created_at: string }[];
   };
   for (const row of (bookingItems ?? []) as Joined[]) {
     const b = Array.isArray(row.bookings) ? row.bookings[0] : row.bookings;
     if (!b) continue;
+    if (options.excludeBookingId && b.id === options.excludeBookingId) continue;
     const counts =
       BLOCKING_STATUSES.includes(b.status as (typeof BLOCKING_STATUSES)[number]) ||
       (b.status === "pending" && Date.parse(b.created_at) > cutoff);

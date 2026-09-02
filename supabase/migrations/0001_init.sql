@@ -51,6 +51,7 @@ create table if not exists public.users (
   name text,
   phone text,
   role user_role not null default 'customer',
+  stripe_customer_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -165,6 +166,7 @@ create table if not exists public.bookings (
   total numeric(10,2) not null default 0,
   currency text not null default 'usd',
   stripe_session_id text,
+  stripe_customer_id text,
   stripe_payment_intent_id text,
   deposit_payment_intent_id text,
   deposit_status deposit_status not null default 'none',

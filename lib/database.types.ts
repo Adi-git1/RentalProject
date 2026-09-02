@@ -28,6 +28,7 @@ export type UserRow = {
   name: string | null;
   phone: string | null;
   role: UserRole;
+  stripe_customer_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -88,6 +89,7 @@ export type BookingRow = {
   total: number;
   currency: string;
   stripe_session_id: string | null;
+  stripe_customer_id: string | null;
   stripe_payment_intent_id: string | null;
   deposit_payment_intent_id: string | null;
   deposit_status: DepositStatus;
