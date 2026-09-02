@@ -2,6 +2,9 @@
   "name": "anytimerental",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +12,8 @@
     "lint": "eslint",
     "db:migrate": "node scripts/migrate.mjs",
     "seed": "node scripts/seed.mjs",
-    "create-admin": "node scripts/create-admin.mjs"
+    "create-admin": "node scripts/create-admin.mjs",
+    "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "@stripe/stripe-js": "^9.15.0",
