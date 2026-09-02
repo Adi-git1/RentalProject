@@ -9,6 +9,8 @@ const supabaseHost = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  // Don't let `next dev` append its agent-rules block to CLAUDE.md (owner's spec).
+  agentRules: false,
   images: {
     remotePatterns: [
       ...(supabaseHost
