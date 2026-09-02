@@ -407,15 +407,16 @@ create policy reviews_delete_own on public.reviews
 -- ============================================================================
 insert into public.settings (id, business_name, pickup_address, delivery_radius_miles,
   delivery_fee, free_delivery_threshold, min_rental_days, tax_rate,
-  cancellation_policy, late_fee_policy, terms_text, contact_email)
+  cancellation_policy, late_fee_policy, terms_text, contact_email, contact_phone)
 values (
   1,
   'AnyTimeRental',
-  '22859 Trailing Rose Ct, Brambleton, VA 20148',
+  'Madison Trust Elementary School parking lot, Brambleton, VA 20148',
   30, 50, 300, 1, 0.06,
   'No refunds. All bookings are final once paid. In exceptional cases the owner may issue a manual refund at their discretion.',
   'Late returns are charged one full day''s rental rate per item for each day late, billed to the card on file.',
   'By booking you agree to the rental terms: all sales are final (no refunds); you are responsible for the equipment while in your possession; late returns incur one full day''s rate per item per day; the security deposit is held as a card authorization and released after the items are returned undamaged; a delivery fee applies for delivery within 30 miles of the pickup address (free over $300).',
-  null
+  null,
+  '847 363 0985'
 )
 on conflict (id) do nothing;

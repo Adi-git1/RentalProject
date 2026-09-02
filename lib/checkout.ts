@@ -74,7 +74,11 @@ export async function buildServerQuote(params: {
       return { ok: false, error: "Enter a delivery address.", field: "deliveryAddress" };
     }
     const addr = `${deliveryAddress.line1}, ${deliveryAddress.city}, ${deliveryAddress.state} ${deliveryAddress.postal_code}`;
-    const check = await checkDeliveryAddress(addr, Number(settings.delivery_radius_miles));
+    const check = await checkDeliveryAddress(
+      addr,
+      Number(settings.delivery_radius_miles),
+      settings.pickup_address,
+    );
     if (!check.ok) {
       return { ok: false, error: check.reason ?? "We can't deliver to that address.", field: "deliveryAddress" };
     }

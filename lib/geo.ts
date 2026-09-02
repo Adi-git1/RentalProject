@@ -3,8 +3,9 @@
  * Uses OpenStreetMap Nominatim (no API key). Low volume only; be polite.
  */
 
-// Pickup: 22859 Trailing Rose Ct, Brambleton, VA 20148
-export const PICKUP_COORDS = { lat: 38.9979, lon: -77.531 } as const;
+// Pickup: Madison Trust Elementary School parking lot, Brambleton, VA 20148
+// (42380 Founders Dr). Used as the origin for the delivery-radius check.
+export const PICKUP_COORDS = { lat: 38.9836, lon: -77.5389 } as const;
 
 export interface GeocodeResult {
   lat: number;
@@ -71,6 +72,7 @@ export interface DeliveryCheck {
 export async function checkDeliveryAddress(
   address: string,
   radiusMiles: number,
+  pickupAddress = "Madison Trust Elementary School parking lot, Brambleton, VA 20148",
 ): Promise<DeliveryCheck> {
   const geo = await geocode(address);
   if (!geo) {
@@ -86,7 +88,7 @@ export async function checkDeliveryAddress(
     return {
       ok: false,
       distanceMiles: Math.round(distance * 10) / 10,
-      reason: `That address is about ${Math.round(distance)} miles away — outside our ${radiusMiles}-mile delivery range. Pickup is available at 22859 Trailing Rose Ct, Brambleton, VA 20148.`,
+      reason: `That address is about ${Math.round(distance)} miles away — outside our ${radiusMiles}-mile delivery range. Pickup is available at ${pickupAddress}.`,
     };
   }
   return { ok: true, distanceMiles: Math.round(distance * 10) / 10 };

@@ -13,8 +13,9 @@ export const DEFAULT_SETTINGS: SettingsRow = {
   business_name: "AnyTimeRental",
   logo_url: null,
   contact_email: null,
-  contact_phone: null,
-  pickup_address: "22859 Trailing Rose Ct, Brambleton, VA 20148",
+  contact_phone: "847 363 0985",
+  pickup_address:
+    "Madison Trust Elementary School parking lot, Brambleton, VA 20148",
   hours: {},
   delivery_radius_miles: 30,
   delivery_fee: 50,
