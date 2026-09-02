@@ -403,26 +403,6 @@ create policy reviews_delete_own on public.reviews
   for delete using (user_id = auth.uid() or public.is_admin());
 
 -- ============================================================================
--- Storage buckets + policies
--- ============================================================================
-insert into storage.buckets (id, name, public)
-values ('item-photos', 'item-photos', true)
-on conflict (id) do nothing;
-
-insert into storage.buckets (id, name, public)
-values ('branding', 'branding', true)
-on conflict (id) do nothing;
-
-drop policy if exists "storage public read anytimerental" on storage.objects;
-create policy "storage public read anytimerental" on storage.objects
-  for select using (bucket_id in ('item-photos', 'branding'));
-
-drop policy if exists "storage admin write anytimerental" on storage.objects;
-create policy "storage admin write anytimerental" on storage.objects
-  for all using (bucket_id in ('item-photos', 'branding') and public.is_admin())
-  with check (bucket_id in ('item-photos', 'branding') and public.is_admin());
-
--- ============================================================================
 -- Seed the single settings row with owner inputs from CLAUDE.md
 -- ============================================================================
 insert into public.settings (id, business_name, pickup_address, delivery_radius_miles,
