@@ -5,9 +5,11 @@ import Image from "next/image";
 import { Container } from "@/components/ui/primitives";
 import { BookingStatusBadge, DepositStatusBadge } from "@/components/booking-status";
 import { CancelButton } from "@/components/account/cancel-button";
+import { ReviewForm } from "@/components/account/review-form";
 import { requireUser } from "@/lib/auth";
 import { getBookingDetail } from "@/lib/bookings";
 import { getSettings } from "@/lib/data";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { formatDateLong } from "@/lib/date";
 import { formatUsd } from "@/lib/money";
 
@@ -28,6 +30,21 @@ export default async function BookingDetailPage({
   const [booking, settings] = await Promise.all([getBookingDetail(id), getSettings()]);
 
   if (!booking || (booking.user_id !== user.id && user.role !== "admin")) notFound();
+
+  const reviewByItem = new Map<string, { rating: number; text: string }>();
+  if (booking.status === "returned") {
+    const { data: reviews } = await createAdminClient()
+      .from("reviews")
+      .select("item_id, rating, text")
+      .eq("user_id", user.id)
+      .in(
+        "item_id",
+        booking.items.map((i) => i.item.id),
+      );
+    for (const r of reviews ?? []) {
+      reviewByItem.set(r.item_id, { rating: r.rating, text: r.text });
+    }
+  }
 
   const canCancel =
     ["pending", "confirmed"].includes(booking.status) &&
@@ -111,6 +128,14 @@ export default async function BookingDetailPage({
                   )}
                 </p>
                 <p className="text-xs text-muted">Qty {bi.qty}</p>
+                {booking.status === "returned" && (
+                  <ReviewForm
+                    bookingId={booking.id}
+                    itemId={bi.item.id}
+                    itemName={bi.item.name}
+                    existing={reviewByItem.get(bi.item.id) ?? null}
+                  />
+                )}
               </div>
               <span className="text-sm text-ink">{formatUsd(Number(bi.line_total))}</span>
             </li>
