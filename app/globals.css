@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   AnyTimeRental design system
+   Accent: teal — reads trustworthy + friendly. Light, marketplace-style UI.
+--------------------------------------------------------------------------- */
+
+@theme {
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --color-canvas: #ffffff;
+  --color-surface: #f8fafc;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --radius-card: 14px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Accessible focus ring everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-line);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+/* react-day-picker (v9) theming */
+.rdp-root {
+  --rdp-accent-color: var(--color-brand-600);
+  --rdp-accent-background-color: var(--color-brand-50);
+  --rdp-today-color: var(--color-brand-700);
+  --rdp-day_button-border-radius: 8px;
+  font-size: 0.9rem;
+}
+.rdp-disabled {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
