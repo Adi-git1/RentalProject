@@ -35,3 +35,6 @@ next-env.d.ts
 /scripts/_*.mjs
 /tmp
 stripe.exe
+
+.vercel
+.env*

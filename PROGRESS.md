@@ -2,7 +2,20 @@
 
 Party-equipment rental site. Next.js 16 (App Router) · TypeScript · Tailwind v4 · Supabase · Stripe · Resend · Vercel.
 
-## Status: build green + database live + end-to-end verified.
+## Status: DEPLOYED — https://rental-project-solary.vercel.app (Vercel, project `solary/rental-project`)
+
+Live in production against the same Supabase DB. All pages 200; `/admin` gates to login; inventory renders. `vercel.json` forces `framework: nextjs` (the project was created with preset "Other", which served `public/` statically → 404 until fixed). Deployment Protection is off.
+
+Remaining before real customers:
+- **Supabase → Auth → URL Configuration:** Site URL + `https://rental-project-solary.vercel.app/auth/callback` in Redirect URLs (sign-in is broken on the deployed domain until this is set).
+- **Stripe webhook endpoint** pointing at `https://rental-project-solary.vercel.app/api/stripe/webhook` (secret is already in Vercel).
+- **`RESEND_API_KEY`** in Vercel is still the invalid key — replace it.
+
+Deploy again with: `npx vercel --prod` (or connect the GitHub repo in Vercel → Settings → Git for auto-deploy on push).
+
+---
+
+## Pre-deploy status: build green + database live + end-to-end verified.
 
 `npm run build` ✅ · `npm run lint` ✅ · `npm run db:migrate` ✅ · `npm run seed` ✅ (admin + 16 items).
 
